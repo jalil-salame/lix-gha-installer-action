@@ -26,22 +26,7 @@ jobs:
         with:
           extra_nix_config: |
             extra-access-tokens = example.com=lix-gha-installer-extra-config-works
-      - name: Printing some useful info
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          env | grep -i nix
-          cat /etc/nix/nix.conf
-          )
-      - name: Doing some Nix stuff
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          nix --extra-experimental-features nix-command config show | grep lix-gha-installer-extra-config-works
-          echo "pp RUBY_DESCRIPTION" | nix-shell -p ruby --run ruby
-          )
+      - uses: ./.github/actions/lix-install-tests
   do-it-with-url:
     name: Testing the action works when lix_version is a URL
     runs-on: ubuntu-24.04
@@ -58,31 +43,9 @@ jobs:
           extra_nix_config: |
             extra-access-tokens = example.com=lix-gha-installer-extra-config-works
           lix_version: "https://releases.lix.systems/lix/lix-${{ matrix.version }}/lix-${{ matrix.version }}-x86_64-linux.tar.xz"
-      - name: Printing some useful info
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          env | grep -i nix
-          cat /etc/nix/nix.conf
-          )
-      - name: Doing some Nix stuff
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          nix --extra-experimental-features nix-command config show | grep lix-gha-installer-extra-config-works
-          echo "pp RUBY_DESCRIPTION" | nix-shell -p ruby --run ruby
-          )
-      - name: Checking the version is correct
-        shell: bash
-        env:
-          LIX_VERSION: ${{ matrix.version }}
-        run: |
-          (
-          set -eux -o pipefail
-          nix --version | grep "^nix (Lix, like Nix) $LIX_VERSION\$"
-          )
+      - uses: ./.github/actions/lix-install-tests
+        with:
+          lix_version: ${{ matrix.version }}
   do-it-with-style:
     name: Testing the action works for Lix ${{ matrix.version }} on ${{ matrix.os }}
     strategy:
@@ -103,28 +66,6 @@ jobs:
           extra_nix_config: |
             extra-access-tokens = example.com=lix-gha-installer-extra-config-works
           lix_version: ${{ matrix.version }}
-      - name: Printing some useful info
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          env | grep -i nix
-          cat /etc/nix/nix.conf
-          )
-      - name: Doing some Nix stuff
-        shell: bash
-        run: |
-          (
-          set -eux -o pipefail
-          nix --extra-experimental-features nix-command config show | grep lix-gha-installer-extra-config-works
-          echo "pp RUBY_DESCRIPTION" | nix-shell -p ruby --run ruby
-          )
-      - name: Checking the version is correct
-        shell: bash
-        env:
-          LIX_VERSION: ${{ matrix.version }}
-        run: |
-          (
-          set -eux -o pipefail
-          nix --version | grep "^nix (Lix, like Nix) $LIX_VERSION\$"
-          )
+      - uses: ./.github/actions/lix-install-tests
+        with:
+          lix_version: ${{ matrix.version }}

@@ -1,0 +1,39 @@
+name: Test Lix Install
+description: Action to test that the Lix GHA Installer Action produced a working Lix install
+inputs:
+  string_in_nix_conf:
+    default: "lix-gha-installer-extra-config-works"
+  lix_version:
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Printing some useful info
+      shell: bash
+      run: |
+        (
+        set -eux -o pipefail
+        env | grep -i nix
+        cat /etc/nix/nix.conf
+        )
+    - name: Doing some Nix stuff
+      shell: bash
+      if: ${{ inputs.string_in_nix_conf != '' }}
+      env:
+        NIX_CONF_STRING: ${{ inputs.string_in_nix_conf }}
+      run: |
+        (
+        set -eux -o pipefail
+        nix --extra-experimental-features nix-command config show | grep "$NIX_CONF_STRING"
+        echo "pp RUBY_DESCRIPTION" | nix-shell -p ruby --run ruby
+        )
+    - name: Checking the version is correct
+      shell: bash
+      if: ${{ inputs.lix_version != '' }}
+      env:
+        LIX_VERSION: ${{ inputs.lix_version }}
+      run: |
+        (
+        set -eux -o pipefail
+        nix --version | grep "^nix (Lix, like Nix) $LIX_VERSION\$"
+        )
